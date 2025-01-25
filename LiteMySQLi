@@ -1,12 +1,12 @@
 <?php
 /**
- * LiteMySQLi - Ultra-Fast Lightweight MySQLi Database Wrapper for PHP
+ * LiteMySQLi - Lightweight MySQLi Database Wrapper for PHP
  * 
  * Copyright (C) 2025 Lars Grove Mortensen. All rights reserved.
  * 
- * LiteMySQLi is an ultra-fast, lightweight wrapper around PHP's MySQLi extension,
+ * LiteMySQLi is a simple, lightweight wrapper around PHP's MySQLi extension,
  * designed to streamline database interactions with prepared statements,
- * caching, transaction support, and batch operations for optimized performance.
+ * caching, and transaction support.
  * 
  * LiteMySQLi is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -21,6 +21,7 @@
  * You should have received a copy of the GNU General Public License
  * along with LiteMySQLi. If not, see <https://www.gnu.org/licenses/>.
  */
+ 
 class LiteMySQLi {
 	
 	/**
@@ -95,7 +96,7 @@ class LiteMySQLi {
 	 * @return \mysqli_result|bool The result set for SELECT queries or a boolean for non-SELECT queries.
 	 * @throws \mysqli_sql_exception If the query fails.
 	 */
-	public function execute(string $sql, array $params = []) {
+	public function query(string $sql, array $params = []) {
 		
 		// If no parameters are provided, execute the raw SQL directly.
 		if (empty($params)) {
@@ -130,7 +131,7 @@ class LiteMySQLi {
 	public function fetchRow(string $sql, array $params = []): ?array {
 		
 		// Execute query and retrieve result set
-		$result = $this->execute($sql, $params);
+		$result = $this->query($sql, $params);
 		
 		// Return the first row or null if no rows exist
 		// return $result->fetch_assoc() ?: null;
@@ -159,7 +160,7 @@ class LiteMySQLi {
 	public function fetchAll(string $sql, array $params = []): array {
 		
 		// Execute the query with the provided parameters, returning a MySQLi result object
-		$result = $this->execute($sql, $params);
+		$result = $this->query($sql, $params);
 		
 		// Fetch all rows as an associative array and return
 		// return $result->fetch_all(MYSQLI_ASSOC);
@@ -197,7 +198,7 @@ class LiteMySQLi {
 		$sql = "INSERT INTO $table ($columns) VALUES ($placeholders)";
 		
 		// Execute the prepared statement with the provided values
-		$this->execute($sql, array_values($data));
+		$this->query($sql, array_values($data));
 		
 		// Return the ID of the last inserted row
 		return $this->connection->insert_id;
@@ -248,7 +249,7 @@ class LiteMySQLi {
 		$sql = "INSERT INTO `$table` ($columnList) VALUES $placeholders";
 
 		// Execute the query with parameter binding
-		$this->execute($sql, $values);
+		$this->query($sql, $values);
 
 		return $this->connection->affected_rows;
 	}
@@ -276,7 +277,7 @@ class LiteMySQLi {
 		$sql = "UPDATE $table SET $set WHERE $where";
         
 		// Execute the query, merging column values and WHERE parameters
-		$this->execute($sql, array_merge(array_values($data), $params));
+		$this->query($sql, array_merge(array_values($data), $params));
 		
 		// Return the number of affected rows
 		return $this->connection->affected_rows;
@@ -300,7 +301,7 @@ class LiteMySQLi {
 		$sql = "DELETE FROM $table WHERE $where";
 		
 		// Execute the query with bound parameters (ensuring SQL safety)
-		$this->execute($sql, $params);
+		$this->query($sql, $params);
 		
 		// Return the number of rows affected by the deletion
 		return $this->connection->affected_rows;
@@ -354,7 +355,7 @@ class LiteMySQLi {
 		}
 
 		// Otherwise, execute the query and count the rows in the result set.
-		$result = $this->execute($resultOrSql, $params);
+		$result = $this->query($resultOrSql, $params);
 		
 		// Retrieve the number of rows in the result set.
 		$count = $result->num_rows;
@@ -392,7 +393,7 @@ class LiteMySQLi {
 		}
 
 		// Execute the query with the provided parameters.
-		$result = $this->execute($sql, $params);
+		$result = $this->query($sql, $params);
 
 		// Return true if at least one row was found, otherwise false.
 		return $result->num_rows > 0;
