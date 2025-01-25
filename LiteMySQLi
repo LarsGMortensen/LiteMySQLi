@@ -38,6 +38,18 @@ class LiteMySQLi {
 	 */
 	private array $statementCache = [];
 
+	/**
+	 * Tracks the number of executed database queries.
+	 *
+	 * This counter is incremented each time a query is executed
+	 * via the `query()` method. It helps monitor query usage for
+	 * performance optimization and debugging purposes.
+	 *
+	 * @var int The total number of queries executed during the script's execution.
+	 */
+	private int $queryCount = 0;
+
+
 
 	/**
 	 * Establishes a connection to the MySQL database using MySQLi.
@@ -98,6 +110,9 @@ class LiteMySQLi {
 	 */
 	public function query(string $sql, array $params = []) {
 		
+		// Increment the query counter to track executed database queries.
+		$this->queryCount++;
+		
 		// If no parameters are provided, execute the raw SQL directly.
 		if (empty($params)) {
 			return $this->connection->query($sql);
@@ -116,6 +131,19 @@ class LiteMySQLi {
 		// Retrieve and return the result set.
 		return $stmt->get_result();
 	}
+	
+	/**
+	 * Retrieves the total number of executed database queries.
+	 *
+	 * This method returns the number of queries that have been executed
+	 * since the database connection was established. It is useful for 
+	 * performance monitoring and debugging.
+	 *
+	 * @return int The total count of executed queries.
+	 */
+	public function countQueries(): int {
+		return $this->queryCount; // Return the tracked query count.
+	}	
 
 	/**
 	 * Executes a SQL query and fetches a single row as an associative array.
