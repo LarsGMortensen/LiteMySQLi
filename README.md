@@ -121,6 +121,12 @@ try {
 }
 ```
 
+## 💡 Why LiteMySQLi?
+
+Unlike heavy ORM libraries, LiteMySQLi **prioritizes raw speed and efficiency** while keeping things simple.  
+It is the perfect choice for developers who need a **fast, secure, and lightweight** database wrapper for PHP applications.  
+With **prepared statement caching, bulk inserts, and transaction management**, LiteMySQLi ensures high performance without unnecessary overhead.
+
 ## License
 LiteMySQLi is released under the **GNU General Public License v3.0**. See [LICENSE](LICENSE) for details.
 
@@ -133,4 +139,3 @@ Developed by **Lars Grove Mortensen** © 2025. Feel free to reach out or contrib
 ---
 
 🌟 **If you find this library useful, give it a star on GitHub!** 🌟
-
