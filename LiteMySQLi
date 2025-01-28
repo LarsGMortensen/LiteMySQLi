@@ -668,6 +668,23 @@ class LiteMySQLi {
 		return $this->statementCache[$sql];
 	}
 		
+	/**
+	 * Returns the last MySQL error message.
+	 *
+	 * @return string|null The error message or null if no error occurred.
+	 */
+	public function getLastError(): ?string {
+		return $this->connection->error ?: null;
+	}
+	
+	/**
+	 * Returns the last MySQL error code.
+	 *
+	 * @return int The error code (0 if no error).
+	 */
+	public function getLastErrorCode(): int {
+		return $this->connection->errno;
+	}		
 
 	/**
 	 * Destructor to clean up database resources.
