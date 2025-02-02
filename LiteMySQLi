@@ -396,35 +396,29 @@ class LiteMySQLi {
 	}
 
 	
-    /**
-     * Checks if a record exists in the database based on a given SQL query.
-     *
-     * This method executes a SELECT query and determines whether at least one row matches
-     * the specified condition. If the query does not already include a `LIMIT` clause,
-     * it automatically appends `LIMIT 1` to optimize performance.
-     *
-     * @param string $sql The SQL SELECT query to check for existence.
-     * @param array $params Optional parameters to bind to the query.
-     * @return bool Returns `true` if at least one matching record exists, otherwise `false`.
-     * @throws \InvalidArgumentException If the provided SQL query is not a SELECT statement.
-     * @throws \mysqli_sql_exception If the query execution fails.
-     */
-	public function exists(string $sql, array $params = []): bool {
-		// Ensure the query starts with "SELECT" to prevent invalid operations.
-		if (!preg_match('/^\s*SELECT\s+/i', $sql)) {
-			throw new \InvalidArgumentException("The SQL query must be a SELECT statement.");
-		}     
-
-		// If the query does not already include a LIMIT clause, append "LIMIT 1" for optimization.
-		if (!preg_match('/\sLIMIT\s+\d+/i', $sql)) {
-			$sql .= " LIMIT 1";
-		}
+	/**
+	 * Checks whether a row exists in a specified database table based on a given condition.
+	 *
+	 * This method executes a `SELECT 1 ... LIMIT 1` query to determine if at least one row
+	 * matches the provided WHERE condition. It is optimized for performance by only checking 
+	 * for existence rather than retrieving full row data.
+	 *
+	 * @param string $table The name of the table to search in.
+	 * @param string $where The WHERE clause (e.g., "column = ?"), defining the search condition.
+	 * @param array $params Optional parameters to bind to the query placeholders.
+	 * @return bool Returns `true` if at least one matching row exists, otherwise `false`.
+	 *
+	 * @throws \mysqli_sql_exception If the query execution fails.
+	 */
+	public function exists(string $table, string $where, array $params = []): bool {
+		// Construct the EXISTS query safely
+		$sql = "SELECT 1 FROM `$table` WHERE $where LIMIT 1";
 
 		// Execute the query with the provided parameters.
 		$result = $this->query($sql, $params);
 
 		// Return true if at least one row was found, otherwise false.
-		return $result->num_rows > 0;
+		return $result && $result->num_rows > 0;
 	}
 
 
