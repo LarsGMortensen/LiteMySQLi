@@ -395,6 +395,35 @@ class LiteMySQLi {
 		return $count;
 	}
 
+
+
+	/**
+	 * Checks whether a row exists in a specified database table based on a given condition.
+	 *
+	 * This method uses `SELECT EXISTS(SELECT 1 FROM table WHERE ... LIMIT 1)` to efficiently 
+	 * check for the existence of a matching row. It avoids returning full result sets, 
+	 * reducing memory usage and network overhead.
+	 *
+	 * @param string $table The name of the table to search in.
+	 * @param string $where The WHERE clause (e.g., "column = ?"), defining the search condition.
+	 * @param array $params Optional parameters to bind to the query placeholders.
+	 * @return bool Returns `true` if at least one matching row exists, otherwise `false`.
+	 *
+	 * @throws \mysqli_sql_exception If the query execution fails.
+	 */
+	/* 
+	public function exists(string $table, string $where, array $params = []): bool {
+		// Construct the EXISTS query to check for row existence efficiently
+		$sql = "SELECT EXISTS(SELECT 1 FROM `$table` WHERE $where LIMIT 1)";
+
+		// Execute the query with bound parameters
+		$result = $this->query($sql, $params);
+
+		// Fetch the first column (EXISTS result) and return true if it's 1, otherwise false
+		return $result && $result->fetch_row()[0] == 1;
+	}
+	*/
+
 	
 	/**
 	 * Checks whether a row exists in a specified database table based on a given condition.
