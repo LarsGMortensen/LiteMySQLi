@@ -150,6 +150,35 @@ class LiteMySQLi {
 	}	
 
 	/**
+	 * Executes a SQL query and returns the value of the first column from the first row.
+	 *
+	 * This method runs the provided SQL query with optional bound parameters and retrieves
+	 * the first value from the first row of the result set. If no rows are found, it returns null.
+	 * Useful for queries that select a single scalar value (e.g., COUNT(*), MAX(id), or a single column).
+	 *
+	 * Example:
+	 * ```php
+	 * $userCount = $db->fetchValue('SELECT COUNT(*) FROM users');
+	 * $email = $db->fetchValue('SELECT email FROM user_account WHERE id = ?', [$userId]);
+	 * ```
+	 *
+	 * @param string $sql     The SQL query to execute.
+	 * @param array  $params  Optional parameters to bind for the prepared statement.
+	 * @return mixed          The first value from the first row of the result set, or null if no rows found.
+	 * 
+	 * @throws \mysqli_sql_exception If the query execution fails.
+	 */
+	public function fetchValue(string $sql, array $params = []) {
+		$result = $this->query($sql, $params);
+		$value = null;
+		if ($result && ($row = $result->fetch_row())) {
+			$value = $row[0];
+		}
+		$result->free();
+		return $value;
+	}
+
+	/**
 	 * Executes a SQL query and fetches a single row as an associative array.
 	 *
 	 * This method prepares and executes the given SQL query with optional bound parameters.
@@ -158,6 +187,7 @@ class LiteMySQLi {
 	 * @param string $sql The SQL query to execute.
 	 * @param array $params Optional parameters to bind to the query.
 	 * @return array|null The fetched row as an associative array, or null if no rows are found.
+	 * 
 	 * @throws \mysqli_sql_exception If the query execution fails.
 	 */
 	public function fetchRow(string $sql, array $params = []): ?array {
@@ -187,6 +217,7 @@ class LiteMySQLi {
 	 * @param string $sql The SQL query to execute.
 	 * @param array $params Optional parameters to bind for prepared statements.
 	 * @return array An array of associative arrays representing the result set.
+	 * 
 	 * @throws \mysqli_sql_exception If the query execution fails.
 	 */
 	public function fetchAll(string $sql, array $params = []): array {
@@ -216,6 +247,7 @@ class LiteMySQLi {
 	 * @param string $table The name of the database table to insert into.
 	 * @param array $data An associative array where keys are column names and values are the corresponding values to insert.
 	 * @return int The ID of the last inserted row.
+	 *
 	 * @throws \mysqli_sql_exception If the query execution fails.
 	 */
 	public function insert(string $table, array $data): int {
@@ -254,6 +286,7 @@ class LiteMySQLi {
 	 * @param string $table The database table name.
 	 * @param array $data An array of associative arrays (each representing a row).
 	 * @return int The number of inserted rows.
+	 *
 	 * @throws \mysqli_sql_exception If the query fails.
 	 */
 	public function insertBatch(string $table, array $data): int {
@@ -325,6 +358,7 @@ class LiteMySQLi {
 	 * @param string $where  The WHERE clause specifying which rows to delete (e.g., "id = ?").
 	 * @param array  $params Parameters to bind to the WHERE clause for prepared statements.
 	 * @return int The number of affected rows after execution.
+	 *
 	 * @throws \mysqli_sql_exception If the query execution fails.
 	 */
 	public function delete(string $table, string $where, array $params = []): int {
@@ -378,6 +412,7 @@ class LiteMySQLi {
 	 * @param \mysqli_result|string $resultOrSql Either a `mysqli_result` object or an SQL query string.
 	 * @param array $params Optional parameters to bind if an SQL query is provided.
 	 * @return int The number of rows in the result set.
+	 *
 	 * @throws \mysqli_sql_exception If the query execution fails.
 	 */
 	public function countRows($resultOrSql, array $params = []): int {
