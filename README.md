@@ -121,9 +121,6 @@ if ($db->exists('users', 'email = ?', ['neo@matrix.io'])) {
 $walkers = $db->countRows("SELECT * FROM zombies WHERE location = ?", ['Alexandria']);
 ```
 
-	 * $result = $db->select("SELECT * FROM users WHERE active = ?", [1]);
-	 * echo $db->countRows($result); // e.g. 5
-
 ### Transactions
 
 ```php
