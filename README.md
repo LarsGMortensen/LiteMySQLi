@@ -293,6 +293,4 @@ Contributions and pull requests are welcome!
 
 🌟 **If you find this library useful, give it a star on GitHub!** 🌟
 
-```
-
 ---
