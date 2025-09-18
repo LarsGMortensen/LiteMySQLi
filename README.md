@@ -1,141 +1,283 @@
+````markdown
 # LiteMySQLi - Lightweight MySQLi Wrapper for PHP
-LiteMySQLi is a lightweight, efficient MySQLi wrapper designed to simplify database interactions in PHP. It offers a clean, intuitive API for executing queries, handling transactions, and optimizing performance with prepared statements and caching.
+LiteMySQLi is a **lightweight, high-performance MySQLi wrapper** for PHP 8.2+, designed to streamline database interactions with prepared statements, caching, transactions, and bulk operations.  
 
-## Features
-✅ Easy-to-use, minimalistic API  
-✅ Secure prepared statements with automatic binding  
-✅ Efficient caching of prepared statements  
-✅ Transaction support with commit/rollback  
-✅ Bulk insert operations for high performance  
-✅ Supports MySQLi error reporting and debugging  
-✅ Ultra-fast performance for database operations  
+Unlike heavy ORMs, LiteMySQLi focuses on **speed, low overhead, and simplicity**, while still offering a clean and safe API for most common SQL operations.
 
-## Installation
+## ✨ Features
+- ✅ Minimalistic, intuitive API (single-file class)
+- ✅ Secure **prepared statements** with automatic type binding
+- ✅ **Statement caching** (FIFO, configurable limit, default: 128)
+- ✅ **Scalar helpers** (`fetchValue()`, `fetchRow()`, `fetchAll()`)
+- ✅ **Bulk operations** with `insertBatch()` and `executeMany()`
+- ✅ **Transaction support** (`beginTransaction()`, `commit()`, `rollback()`, `easyTransaction()`)
+- ✅ **Streaming SELECT without mysqlnd** (`selectNoMysqlnd()`)
+- ✅ **Raw SQL execution** (`queryRaw()`, `queryRawMulti()`)
+- ✅ Lightweight **profiling** (`countQueries()`)
+- ✅ Deterministic cleanup of statements & connection (`close()`, `__destruct()`)
+
+---
+
+## ⚡ Installation
 Simply include the `LiteMySQLi.php` file in your project:
 
 ```php
 require_once 'LiteMySQLi.php';
-```
+````
 
-## Usage
-### Connect to the Database
+---
+
+## 🚀 Usage Examples
+
+### Connect to the database
+
 ```php
 $db = new LiteMySQLi('localhost', 'username', 'password', 'database');
 ```
 
-### Fetch a single row
-```php
-$user = $db->fetchRow("SELECT * FROM users WHERE email = ?", ['john@example.com']);
-```
+### Fetch a single scalar value
 
-### Fetch all rows
 ```php
-$users = $db->fetchAll("SELECT * FROM users");
-```
+// Stewie checks if his world domination plan is ready
+$plan = $db->fetchValue("SELECT status FROM evil_plans WHERE mastermind = ?", ['Stewie']);
 
-### Insert data
-```php
-$lastId = $db->insert('users', ['name' => 'John Doe', 'email' => 'john@example.com']);
-```
-
-### Bulk insert
-```php
-$data = [
-    ['name' => 'Alice', 'email' => 'alice@example.com'],
-    ['name' => 'Bob', 'email' => 'bob@example.com']
-];
-$db->insertBatch('users', $data);
-```
-
-### Update data
-```php
-$db->update('users', ['name' => 'Jane Doe'], 'email = ?', ['john@example.com']);
-```
-
-### Delete data
-```php
-$db->delete('users', 'email = ?', ['john@example.com']);
-```
-
-### Check if a record exists
-```php
-$exists = $db->exists("SELECT 1 FROM users WHERE email = ?", ['john@example.com']);
-```
-
-### Count rows in a query
-```php
-$count = $db->countRows("SELECT * FROM users");
-```
-
-### Get number of affected rows
-```php
-$affected = $db->affectedRows();
-```
-
-### Get last inserted ID
-```php
-$lastId = $db->lastInsertId();
-```
-
-### Transactions
-```php
-$db->beginTransaction();
-try {
-    $db->insert('orders', ['user_id' => 1, 'total' => 99.99]);
-    $db->commit();
-} catch (Exception $e) {
-    $db->rollback();
+if ($plan !== 'complete') {
+    echo "Blast! Foiled again by that insufferable dog, Brian!";
 }
 ```
 
-### Easy transaction handling (with automatic rollback)
-```php
-$db->easyTransaction(function ($db) {
-    $db->insert('users', ['name' => 'Alice', 'email' => 'alice@example.com']);
-});
-```
-If an exception occurs inside the callback, the transaction will **automatically rollback** to prevent partial inserts.
+### Fetch one row
 
-### Easy transaction handling with bulk insert
 ```php
-$db->easyTransaction(function ($db) {
-    $data = [
-        ['name' => 'Alice', 'email' => 'alice@example.com'],
-        ['name' => 'Bob', 'email' => 'bob@example.com'],
-        ['name' => 'Charlie', 'email' => 'charlie@example.com']
-    ];
-    foreach ($data as $row) {
-        $db->insert('users', $row);
+$cup = $db->fetchRow("SELECT * FROM coffee WHERE status = ? LIMIT 1", ['hot']); 
+// probably null
+```
+
+### Fetch all rows
+
+```php
+$adventures = $db->fetchAll("SELECT * FROM adventures WHERE duo = ?", ['Bill and Ted']);
+foreach ($adventures as $adventure) {
+    echo "Adventure #" . $adventure['id'] . ": " . $adventure['title'] . " - most excellent!\n";
+}
+```
+
+### Streaming fetch without mysqlnd
+
+```php
+foreach ($db->selectNoMysqlnd(
+    "SELECT * FROM naps WHERE status = ?", ['interrupted']
+) as $row) {
+    echo $row['time'] . " - another debug at 3am\n";
+}
+```
+
+### Insert a single row
+
+```php
+$id = $db->insert('users', [
+    'name'  => 'Donald Duck',
+    'email' => 'donald@disney.com'
+]);
+```
+
+### Bulk insert
+
+```php
+// Add the Griffin family in one go
+$db->insertBatch('griffins', [
+    ['name' => 'Peter',   'role' => 'Dad',     'hobby' => 'Drunken antics'],
+    ['name' => 'Lois',    'role' => 'Mom',     'hobby' => 'Piano and sarcasm'],
+    ['name' => 'Meg',     'role' => 'Daughter','hobby' => 'Being ignored'],
+    ['name' => 'Chris',   'role' => 'Son',     'hobby' => 'Drawing weird stuff'],
+    ['name' => 'Stewie',  'role' => 'Baby',    'hobby' => 'World domination'],
+    ['name' => 'Brian',   'role' => 'Dog',     'hobby' => 'Martinis and novels'],
+]);
+```
+
+### Update rows
+
+```php
+$db->update('employees', ['status' => 'fired'], 'name = ?', ['Homer Simpson']);
+// doh!
+```
+
+### Delete rows
+
+```php
+$db->delete('Canton', 'name = ?', ['Ryan Leaf']);
+```
+
+### Check if a record exists
+
+```php
+if ($db->exists('users', 'email = ?', ['neo@matrix.io'])) {
+    echo "Whoa. He’s already in the system.";
+}
+```
+
+### Count rows
+
+```php
+$walkers = $db->countRows("SELECT * FROM zombies WHERE location = ?", ['Alexandria']);
+```
+
+	 * $result = $db->select("SELECT * FROM users WHERE active = ?", [1]);
+	 * echo $db->countRows($result); // e.g. 5
+
+### Transactions
+
+```php
+$db->beginTransaction();
+try {
+    $db->insert('Cheers', ['name' => 'Sam Malone']);
+    $db->insert('Cheers', ['name' => 'Diane Chambers']);
+    $db->insert('Cheers', ['name' => 'Norm Peterson']);
+    $db->commit(); // where everybody knows your name
+} catch (Throwable $e) {
+    $db->rollback(); // back to drinking alone
+}
+```
+
+### Easy transaction (auto rollback on error)
+
+```php
+// Successful transaction (committed)
+$db->easyTransaction(function($db) {
+    // Insert player (parent)
+    $db->insert('players', ['name' => 'Tom Brady']);
+
+    // Child row references the just-created player via lastInsertId()
+    $db->insert('comebacks', ['player_id' => $db->lastInsertId(), 'score' => '28-3']);
+});
+
+// Failing transaction (rolled back automatically)
+try {
+    $db->easyTransaction(function($db) {
+        // Looks great at halftime...
+        $db->insert('teams', ['name' => 'Atlanta Falcons', 'lead' => '28-3']);
+
+        // ...but something goes wrong — trigger rollback of everything above
+        throw new RuntimeException("Celebrating too early... rollback!");
+    });
+} catch (\Throwable $e) {
+    // Already rolled back; no rows from this block were persisted
+}
+
+```
+
+### Raw SQL execution
+
+```php
+$db->queryRaw("CREATE TEMPORARY TABLE time_travelers (id INT, name VARCHAR(50))");
+$db->queryRaw("INSERT INTO time_travelers VALUES (1, 'Marty'), (2, 'Doc Brown')");
+
+$res = $db->queryRaw("SELECT * FROM time_travelers");
+while ($row = $res->fetch_assoc()) {
+    echo $row['id'] . ': ' . $row['name'] . PHP_EOL;
+}
+$res->free();
+```
+
+### Multiple raw SQL statements
+
+```php
+$results = $db->queryRawMulti("
+    CREATE TEMPORARY TABLE gallaghers (id INT, name VARCHAR(50));
+    INSERT INTO gallaghers (id, name) VALUES (1, 'Frank'), (2, 'Lip'), (3, 'Fiona');
+    SELECT * FROM gallaghers;
+");
+
+foreach ($results as $res) {
+    if ($res instanceof mysqli_result) {
+        while ($row = $res->fetch_assoc()) {
+            echo $row['id'] . ' -> ' . $row['name'] . PHP_EOL;
+        }
+        $res->free();
     }
-});
+}
 ```
-This ensures that either **all rows are inserted successfully or none at all** in case of an error.
 
-## Error handling
-LiteMySQLi uses MySQLi's strict error reporting mode to throw exceptions on errors. Use try-catch blocks for better error management:
+---
+
+## 🔧 Utility Methods
+
+* `lastInsertId()` -> returns the last AUTO\_INCREMENT value
+* `affectedRows()` -> number of rows affected by last query
+* `countQueries($reset = false)` -> number of executed queries (optionally reset)
+* `getLastError() / getLastErrorCode()` -> retrieve last MySQL error
+* `setStatementCacheLimit($limit)` -> change cache size or disable caching
+* `clearStatementCache()` -> free all cached prepared statements
+* `close()` -> explicit cleanup (statements + connection)
+
+---
+
+## ⚠️ Error Handling
+
+LiteMySQLi uses **strict MySQLi error reporting** (`MYSQLI_REPORT_ERROR | MYSQLI_REPORT_STRICT`) by default.
+This means **all errors throw exceptions**:
+
 ```php
 try {
-    $db->execute("INVALID SQL QUERY");
+    $db->execute("INVALID SQL");
 } catch (mysqli_sql_exception $e) {
     echo "Database error: " . $e->getMessage();
 }
 ```
 
+---
+
 ## 💡 Why LiteMySQLi?
 
-Unlike heavy ORM libraries, LiteMySQLi **prioritizes raw speed and efficiency** while keeping things simple.  
-It is the perfect choice for developers who need a **fast, secure, and lightweight** database wrapper for PHP applications.  
-With **prepared statement caching, bulk inserts, and transaction management**, LiteMySQLi ensures high performance without unnecessary overhead.
+- ⚡ **Blazing fast by design** - minimal overhead, tiny call graph, and OPcache-friendly code paths.
+- 🔒 **Safety first** - prepared statements everywhere, type-aware binding, no string concatenation footguns.
+- 💾 **Memory-lean** - predictable allocations, no ORM hydration bloat or proxy objects.
+- 🧩 **Zero dependencies** - a single ~60 KB PHP file; nothing else to install or maintain.
+- 🚀 **Shared-hosting friendly** - runs anywhere PHP + MySQLi runs (perfect for budget and legacy hosts).
+- ♻️ **Smart statement cache** - FIFO cache reuses prepared statements for repeat queries to cut latency.
+- 📦 **Bulk at scale** - `insertBatch()` and `executeMany()` deliver high throughput for large datasets.
+- 🧵 **Deterministic cleanup** - `close()` and a safe `__destruct()` ensure resources are freed promptly.
+- 🧪 **Strict error mode** - leverages `MYSQLI_REPORT_ERROR | MYSQLI_REPORT_STRICT` to fail fast and loud.
+- 🔍 **Lightweight profiling** - `countQueries()` gives you instant per-request query counts.
+- 📈 **Index awareness** - optional `MYSQLI_REPORT_INDEX` helps surface “missing/bad index” warnings early.
+- 🌊 **Streams without mysqlnd** - `selectNoMysqlnd()` reads large result sets with tiny memory footprints.
+- 🧰 **Pragmatic escape hatches** - `queryRaw()` and `queryRawMulti()` for migrations and admin tasks.
+- 🛡️ **Transaction-strong** - explicit `begin/commit/rollback` + `easyTransaction()` convenience wrapper.
+- 🧭 **No hidden magic** - what you write is what runs; SQL remains front and center.
+- 🧰 **Drop-in adoption** - keep your existing SQL and migrate one query at a time with near-zero risk.
+- 🔁 **Idempotent helpers** - `fetchValue()`, `fetchRow()`, `fetchAll()` cover 90% of day-to-day reads.
+- 🧱 **Strict identifier quoting** - safe table/column quoting via `quoteIdentifier*()` utilities.
+- 🛠 **Operations-ready** - explicit resource freeing, predictable failure modes, and clean connection state.
+- 🧩 **Framework-agnostic** - fits neatly into any codebase; PSR-4 compatible, no global state.
+- 🧭 **MariaDB/MySQL compatible** - targets mainstream MySQL/MariaDB features, not vendor-specific quirks.
+- ⏱ **Benchmark-friendly** - simple API surface makes it easy to measure and tune hot paths.
+- 🧾 **GPL-3.0-or-later** - open source with a clear, permissive-for-FOSS licensing model.
+- 🧑‍💻 **Built for PHP 8.2+** - typed properties, strict types, modern language features by default.
+- 🔧 **Config on your terms** - adjustable statement cache size, strictness, and charset.
 
-## License
-LiteMySQLi is released under the **GNU General Public License v3.0**. See [LICENSE](LICENSE) for details.
+> **TL;DR:** LiteMySQLi gives you raw SQL speed, modern safety, and production-grade ergonomics - without the ORM baggage.
 
-## Contributing
-Contributions are welcome! Feel free to fork this repository, submit issues, or open a pull request.
 
-## Author
-Developed by **Lars Grove Mortensen** © 2025. Feel free to reach out or contribute!
+Perfect for developers who want **raw SQL power** with **modern safety and speed**.
+
+---
+
+## 📜 License
+
+LiteMySQLi is released under the **GNU General Public License v3.0 or later**.
+See [LICENSE](LICENSE) for details.
+
+---
+
+## 👨‍💻 Author
+
+Developed by **Lars Grove Mortensen** © 2025
+Contributions and pull requests are welcome!
 
 ---
 
 🌟 **If you find this library useful, give it a star on GitHub!** 🌟
+
+```
+
+---
