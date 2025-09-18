@@ -240,8 +240,6 @@ if ($db->getLastErrorCode() !== 0) {
 
 These methods do **not** throw and can be used alongside or instead of exceptions.
 
-```
-
 ---
 
 ## 💡 Why LiteMySQLi?
