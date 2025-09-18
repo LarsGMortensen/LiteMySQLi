@@ -210,8 +210,8 @@ foreach ($results as $res) {
 
 ## ⚠️ Error Handling
 
-LiteMySQLi uses **strict MySQLi error reporting** (`MYSQLI_REPORT_ERROR | MYSQLI_REPORT_STRICT`) by default.
-This means **all errors throw exceptions**:
+LiteMySQLi defaults to **strict error mode** (`MYSQLI_REPORT_ERROR | MYSQLI_REPORT_STRICT`),  
+which means **all database errors throw `mysqli_sql_exception` immediately**:
 
 ```php
 try {
@@ -219,6 +219,27 @@ try {
 } catch (mysqli_sql_exception $e) {
     echo "Database error: " . $e->getMessage();
 }
+````
+
+### Soft error inspection
+
+If you prefer to **inspect errors manually** (e.g. for logging or batch scripts),
+you can use the helper methods:
+
+```php
+$db->execute("INVALID SQL");
+
+if ($db->getLastErrorCode() !== 0) {
+    echo "Error code: " . $db->getLastErrorCode();
+    echo "Error message: " . $db->getLastError();
+}
+```
+
+* `getLastErrorCode()` → last error code (0 if none).
+* `getLastError()` → last error message (null if none).
+
+These methods do **not** throw and can be used alongside or instead of exceptions.
+
 ```
 
 ---
