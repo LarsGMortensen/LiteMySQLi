@@ -1,1 +1,6 @@
-backups/
+# Ignore all "_arkiv" folders everywhere
+**/_arkiv_/
+**/backups/
+
+# Globals
+*.bck
