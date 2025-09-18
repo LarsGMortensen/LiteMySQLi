@@ -1,18 +1,28 @@
 {
-  "name": "larsgmortensen/litemysqli",
-  "description": "Lightweight wrapper for MySQLi in PHP",
-  "type": "library",
-  "license": "GPL-3.0-or-later",
-  "autoload": {
-    "psr-4": {
-      "LiteMySQLi\\": "src/"
-    }
-  },
-  "authors": [
-    {
-      "name": "Lars Grove Mortensen",
-      "homepage": "https://github.com/LarsGMortensen"
-    }
-  ],
-  "require": {}
+	"name": "larsgmortensen/litemysqli",
+	"description": "LiteMySQLi is a lightweight, minimal-overhead wrapper for PHP's MySQLi extension. Designed for speed, simplicity, and ease of integration.",
+	"type": "library",
+	"license": "GPL-3.0-or-later",
+	"autoload": {
+		"psr-4": {
+			"LiteMySQLi\\": "src/"
+		}
+	},
+	"require": {
+		"php": ">=8.2"
+	},
+	"authors": [
+		{
+			"name": "Lars Grove Mortensen",
+			"email": "lars@grove-mortensen.dk",
+			"homepage": "https://github.com/LarsGMortensen"
+		}
+	],
+	"homepage": "https://github.com/LarsGMortensen/LiteMySQLi",
+	"support": {
+		"issues": "https://github.com/LarsGMortensen/LiteMySQLi/issues",
+		"source": "https://github.com/LarsGMortensen/LiteMySQLi"
+	},
+	"minimum-stability": "stable",
+	"prefer-stable": true
 }
