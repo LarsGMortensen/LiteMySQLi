@@ -1,4 +1,3 @@
-````markdown
 # LiteMySQLi - Lightweight MySQLi Wrapper for PHP
 LiteMySQLi is a **lightweight, high-performance MySQLi wrapper** for PHP 8.2+, designed to streamline database interactions with prepared statements, caching, transactions, and bulk operations.  
 
