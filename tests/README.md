@@ -1,5 +1,3 @@
----
-
 # LiteMySQLi – Integration Test
 
 This repository contains a single, self-contained **integration test** that exercises the public surface of **LiteMySQLi** end-to-end against a real MySQL/MariaDB instance.
@@ -298,8 +296,6 @@ jobs:
 ## License
 
 This test script is covered by the same license as LiteMySQLi (e.g., GPL-3.0-or-later), unless explicitly stated otherwise in your repository.
-
----
 
 ## Acknowledgements
 
