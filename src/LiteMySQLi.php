@@ -143,11 +143,53 @@ final class LiteMySQLi {
 		// Enable MySQLi error reporting to throw exceptions on errors
 		\mysqli_report(MYSQLI_REPORT_ERROR | MYSQLI_REPORT_STRICT);
 
+
 		// Establish a new MySQLi connection
 		$this->connection = new \mysqli($host, $username, $password, $database);
 
+
 		// Set the desired character set for the connection
 		$this->connection->set_charset($charset);
+		
+		
+		// Align the MySQL session time zone with PHP's current default time zone.
+		//
+		// Rationale:
+		// - If PHP and MySQL use different time zones, functions like NOW(), CURDATE(),
+		//   and DEFAULT CURRENT_TIMESTAMP may drift from PHP-side timestamps.
+		// - MySQL does not always accept named zones (e.g., "Europe/Copenhagen")
+		//   unless its time zone tables are installed. However, it always accepts
+		//   fixed UTC offsets in the format ±HH:MM.
+		//
+		// Behavior:
+		// - Reads PHP’s default time zone (set via date_default_timezone_set()).
+		// - Computes the current UTC offset for that zone (DST-aware).
+		// - Applies the offset to the MySQL session using `SET time_zone = '+HH:MM'`.
+		//
+		// Scope:
+		// - Session-only. It does not alter the global server time zone.
+		//
+		// Notes:
+		// - DST is respected because the offset is calculated for "now" in the zone.
+		// - For long-running processes across DST transitions, ensure new connections
+		//   are created (or this block re-run) so fresh sessions pick up the new offset.
+		$tz = \date_default_timezone_get();
+		if ($tz) {
+			// MySQL accepts fixed offsets reliably; named zones require tz tables.
+			$dtz = new \DateTimeZone($tz);
+
+			// Compute current offset (seconds) from UTC for this zone (DST-aware).
+			$offset = $dtz->getOffset(new \DateTime('now', $dtz));
+
+			// Convert seconds to ±HH:MM format expected by MySQL.
+			$hours   = \intdiv($offset, 3600);
+			$minutes = \abs(\intdiv($offset % 3600, 60));
+			$mysqlOffset = \sprintf('%+03d:%02d', $hours, $minutes);
+
+			// Apply offset to session; affects NOW(), CURDATE(), TIMESTAMP defaults, etc.
+			$this->connection->query("SET time_zone = '{$mysqlOffset}'");
+		}
+		
 	}
 
 
