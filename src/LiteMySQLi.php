@@ -1,31 +1,15 @@
 <?php
-/**
- * LiteMySQLi - Lightweight MySQLi Database Wrapper for PHP
- * 
- * Copyright (C) 2025 Lars Grove Mortensen. All rights reserved.
- * 
- * LiteMySQLi is a simple, lightweight wrapper around PHP's MySQLi extension,
- * designed to streamline database interactions with prepared statements,
- * caching, and transaction support.
- * 
- * LiteMySQLi is free software: you can redistribute it and/or modify
- * it under the terms of the GNU General Public License as published by
- * the Free Software Foundation, either version 3 of the License, or
- * (at your option) any later version.
- * 
- * LiteMySQLi is distributed in the hope that it will be useful,
- * but WITHOUT ANY WARRANTY; without even the implied warranty of
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
- * GNU General Public License for more details.
- * 
- * You should have received a copy of the GNU General Public License
- * along with LiteMySQLi. If not, see <https://www.gnu.org/licenses/>.
- */
- 
 declare(strict_types=1);
+/*
+ * SPDX-License-Identifier: GPL-3.0-or-later
+ * Copyright (C) 2021-2025 Lars Grove Mortensen
+ *
+ * LiteMySQLi - A lightweight, high-performance MySQLi wrapper for PHP
+ * Source:  https://github.com/larsgmortensen/litemysqli
+ * License: See the LICENSE file for full terms.
+ */
 
 namespace LiteMySQLi;
-
 
 final class LiteMySQLi {
 	
@@ -81,11 +65,11 @@ final class LiteMySQLi {
 	 * Tracks the total number of SQL statements executed by this instance.
 	 *
 	 * The counter is incremented whenever a statement is executed via:
-	 * - execute()           — INSERT/UPDATE/DELETE/DDL (non-SELECT)
-	 * - select()            — SELECT (mysqlnd result)
-	 * - selectNoMysqlnd()   — SELECT streamed with bind_result()/fetch()
-	 * - queryRaw()          — single raw SQL statement (no binding)
-	 * - queryRawMulti()     — one increment per processed statement in the batch
+	 * - execute()           - INSERT/UPDATE/DELETE/DDL (non-SELECT)
+	 * - select()            - SELECT (mysqlnd result)
+	 * - selectNoMysqlnd()   - SELECT streamed with bind_result()/fetch()
+	 * - queryRaw()          - single raw SQL statement (no binding)
+	 * - queryRawMulti()     - one increment per processed statement in the batch
 	 *
 	 * Usage:
 	 * - Read with countQueries() to get the current value.
@@ -136,7 +120,7 @@ final class LiteMySQLi {
 		// ----------------
 		// MYSQLI_REPORT_OFF	// Turns reporting off (the default)
 		// MYSQLI_REPORT_ERROR	// Report errors from mysqli function calls
-		// MYSQLI_REPORT_STRICT	// Throw mysqli_sql_exception for errors instead of warnings
+		// MYSQLI_REPORT_STRICT	// Throw mysqli_sql_exception for errors instead of warnings
 		// MYSQLI_REPORT_INDEX	// Report if no index or bad index was used in a query
 		// MYSQLI_REPORT_ALL	// Set all options (report all)
 		
@@ -162,7 +146,7 @@ final class LiteMySQLi {
 		//   fixed UTC offsets in the format ±HH:MM.
 		//
 		// Behavior:
-		// - Reads PHP’s default time zone (set via date_default_timezone_set()).
+		// - Reads PHP's default time zone (set via date_default_timezone_set()).
 		// - Computes the current UTC offset for that zone (DST-aware).
 		// - Applies the offset to the MySQL session using `SET time_zone = '+HH:MM'`.
 		//
@@ -461,7 +445,7 @@ final class LiteMySQLi {
 	 *
 	 * NOTES:
 	 * - Consider chunking to respect `max_allowed_packet`! For very large batches, this method
-	 *   already chunks the fallback path. You can also split `$data` yourself (e.g., 5–20k rows
+	 *   already chunks the fallback path. You can also split `$data` yourself (e.g., 5-20k rows
 	 *   depending on row size) and call `insertBatch()` per chunk for tighter control.
 	 * - This method opens and commits ITS OWN TRANSACTION(!) in the chunked fallback path.
 	 *   Do NOT call `insertBatch()` inside an already active transaction; start/end
@@ -531,7 +515,7 @@ final class LiteMySQLi {
 			$estimatedBytes += 16; // conservative per-row overhead for separators
 		}
 
-		// Heuristic thresholds — tune for your environment:
+		// Heuristic thresholds - tune for your environment:
 		// - Above ROW_LIMIT or SIZE_LIMIT, prefer the chunked fallback strategy.
 		$ROW_LIMIT  = 1000;             // multi-row above this becomes unwieldy
 		$SIZE_LIMIT = 4 * 1024 * 1024;  // ~4MB safety margin under max_allowed_packet
@@ -1048,7 +1032,7 @@ final class LiteMySQLi {
 		// Obtain result metadata to discover column names and count.
 		$meta = $stmt->result_metadata();
 		if (!$meta) {
-			// No result set produced (e.g., non-SELECT) – align behavior with select() by throwing.
+			// No result set produced (e.g., non-SELECT) - align behavior with select() by throwing.
 			$stmt->close();
 			throw new \mysqli_sql_exception('Expected a result set from SELECT, but none was produced.');
 		}
@@ -1382,7 +1366,7 @@ final class LiteMySQLi {
 	 * - A newly prepared statement is cached (unless caching is disabled) and returned.
 	 *
 	 * Notes:
-	 * - This method does not attempt to “health-check” cached statements;
+	 * - This method does not attempt to "health-check" cached statements;
 	 *   if a statement becomes unusable, MySQLi will throw on execute(), which is desired.
 	 * - SQL strings are used as 1:1 cache keys; changing whitespace or placeholder
 	 *   layout creates a distinct cache entry.
@@ -1711,7 +1695,7 @@ final class LiteMySQLi {
 	 * Example:
 	 * ```php
 	 * $db = new LiteMySQLi('localhost', 'user', 'pass', 'dbname');
-	 * // no explicit $db->close(); needed — resources will be freed automatically
+	 * // no explicit $db->close(); needed - resources will be freed automatically
 	 * // when $db goes out of scope or script ends.
 	 * ```
 	 *
